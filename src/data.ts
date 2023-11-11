@@ -11,7 +11,7 @@ type Products = Product[];
 
 export const featuredProducts: Products = [
   {
-    id: 1,
+    id: 12,
     title: "Sicilian",
     desc: "Ignite your taste buds with a fiery combination of spicy pepperoni, jalapeños, crushed red pepper flakes, and melted mozzarella cheese, delivering a kick with every bite.",
     img: "/temporary/p1.png",
