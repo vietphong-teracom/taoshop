@@ -55,3 +55,5 @@ export const authOptions: NextAuthOptions = {
 };
 
 export const getAuthSession = () => getServerSession(authOptions);
+
+console.log("commit 1")
