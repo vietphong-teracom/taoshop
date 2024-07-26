@@ -1,5 +1,6 @@
 const { Builder, By, Key, until } = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
+const fs = require("fs");
 
 async function fillForm(formData) {
   let options = new chrome.Options();
@@ -40,6 +41,22 @@ async function fillForm(formData) {
     let cvv = await driver.findElement(By.name("cvv"));
     await driver.executeScript("arguments[0].scrollIntoView(true);", cvv);
     await cvv.sendKeys(formData.cvv);
+
+    // Handle event click
+    await driver.wait(
+      until.elementLocated(By.css('button[type="button"].accordion-button')),
+      10000
+    );
+    let accordionButton = await driver.findElement(
+      By.css('button[type="button"].accordion-button')
+    );
+    await driver.executeScript(
+      "arguments[0].scrollIntoView(true);",
+      accordionButton
+    );
+    await accordionButton.click();
+
+    await driver.sleep(1000);
 
     await driver.wait(until.elementLocated(By.name("email")), 10000);
     let email = await driver.findElement(By.name("email"));
@@ -119,7 +136,66 @@ async function fillForm(formData) {
     );
     await driver.executeScript("arguments[0].click();", submitButton);
 
-    await driver.sleep(30000);
+    await driver.sleep(5000);
+
+    // Switch to the first iframe
+    await driver.wait(
+      until.elementLocated(By.name("enrollment-iframe")),
+      10000
+    );
+    let firstIframe = await driver.findElement(By.name("enrollment-iframe"));
+    await driver.switchTo().frame(firstIframe);
+
+    await driver.sleep(5000);
+
+    // Switch to the second iframe within the first iframe
+    await driver.wait(
+      until.elementLocated(By.id("Cardinal-CCA-IFrame")),
+      10000
+    );
+    let secondIframe = await driver.findElement(By.id("Cardinal-CCA-IFrame"));
+    await driver.switchTo().frame(secondIframe);
+
+    // submit method receive OTP
+    await driver.wait(
+      until.elementLocated(By.css('button[type="submit"]')),
+      10000
+    );
+    let getOTPSubmitButton = await driver.findElement(
+      By.css('button[type="submit"]')
+    );
+    await driver.executeScript(
+      "arguments[0].scrollIntoView(true);",
+      getOTPSubmitButton
+    );
+    await getOTPSubmitButton.click();
+
+    await driver.sleep(5000);
+
+    // Fill OTP into the input field
+    await driver.wait(until.elementLocated(By.id("Callback_sms")), 10000);
+    let otpInput = await driver.findElement(By.id("Callback_sms"));
+    await driver.executeScript("arguments[0].scrollIntoView(true);", otpInput);
+    await otpInput.clear(); // Clear any existing value if needed
+    await otpInput.sendKeys(formData.otp);
+
+    await driver.sleep(5000);
+
+    // Submit OTP
+
+    await driver.wait(
+      until.elementLocated(By.css('button[type="submit"]')),
+      10000
+    );
+    let OTPSubmitButton = await driver.findElement(
+      By.css('button[type="submit"]')
+    );
+    await driver.executeScript(
+      "arguments[0].scrollIntoView(true);",
+      OTPSubmitButton
+    );
+    await OTPSubmitButton.click();
+    await driver.sleep(5000);
   } catch (err) {
     console.error("Error:", err);
   } finally {
@@ -129,17 +205,18 @@ async function fillForm(formData) {
 
 // Gọi hàm fillForm và truyền các giá trị
 const formData = {
-  link: "https://payment.dev.appotapay.com/v2/bank/payment/process?tran=dGlkPUFQMjQxNDQ4NTUzMjEwJm9yZGVySWQ9SEFTREtKUzQzRkRZQi1DJnRzPTE3MjA2NTk2ODg&sign=8031ae8d385750600fce84a745fae774fb19686fbd6f9cdce775be12b990c3ec",
-  card_number: "5123450000000008",
-  card_name: "John Doe",
-  releaseDate: "12/24",
-  cvv: "123",
+  link: "https://payment.appotapay.com/v2/bank/payment/process?tran=dGlkPUFQMjQyMDE2NzAyNjM1Jm9yZGVySWQ9SDk5OVA2MElILVJRZTNxJnRzPTE3MjE5MDI1MDg&sign=4c9770d2377afefa3f44d19ac49d91949c49d445e5283e5f497af491cbd615d9&lang=vi",
+  card_number: "4780970023195367",
+  card_name: "DAO DUY LUONG",
+  releaseDate: "11/31",
+  cvv: "403",
   email: "john.doe@example.com",
   phone: "0123456789",
   address: "123 Main Street",
   country: "Vietnam",
   wards: "Some District",
   zip_code: "123456",
+  otp: "123456",
 };
 
 fillForm(formData);
